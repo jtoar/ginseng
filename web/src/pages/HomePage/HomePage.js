@@ -118,6 +118,7 @@ const EntryEdit = ({ id, heading, locators, updateHeading, send }) => {
         name="heading"
         defaultValue={heading}
         onKeyDown={updateHeadingAndCreateNote}
+        autoFocus={true}
       />
       {locators && (
         <LocatorsWrapper>{mapLocatorsToJSX(locators)}</LocatorsWrapper>
@@ -156,7 +157,11 @@ const Note = ({ note }) => {
     <Form onSubmit={updateNoteText} data-id={note.id}>
       <h3>{state.context.id}</h3>
       <Label name="text" />
-      <TextAreaField name="text" defaultValue={state.context.text} />
+      <TextAreaField
+        name="text"
+        defaultValue={state.context.text}
+        autoFocus={true}
+      />
       <Submit>save</Submit>
     </Form>
   )
