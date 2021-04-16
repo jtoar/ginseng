@@ -36,7 +36,22 @@ async function main() {
     }
   */
 
-  console.info('No data to seed. See api/db/seed.js for info.')
+  // console.info('No data to seed. See api/db/seed.js for info.')
+
+  const entries = await db.entry.findMany()
+
+  if (!entries.length) {
+    await db.entry.create({
+      data: {
+        heading: 'sleep',
+        locators: {
+          create: {
+            text: 'nothing breaks you faster',
+          },
+        },
+      },
+    })
+  }
 }
 
 main()
