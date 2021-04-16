@@ -1,16 +1,28 @@
-import { createMachine, spawn, assign } from 'xstate'
+import { createMachine, spawn, assign, sendParent } from 'xstate'
 import { useMachine } from '@xstate/react'
 import * as R from 'ramda'
 
 // entry
 //========================
 
-const updateEntryHeading = assign((_ctx, e) => ({
+const updateHeading = assign((_ctx, e) => ({
   heading: e.heading,
 }))
 
+const createLocator = assign((ctx, _e) => ({
+  locators: [...ctx.locators, guidGenerator()],
+}))
+
+const createNoteWithEntry = sendParent((ctx, _e) => ({
+  type: 'createNote',
+  entryId: ctx.id,
+  noteId: R.last(ctx.locators),
+}))
+
 const entryMachineActions = {
-  updateEntryHeading,
+  updateHeading,
+  createLocator,
+  createNoteWithEntry,
 }
 
 //------------------------
@@ -26,19 +38,32 @@ const entryMachine = ({ id = guidGenerator(), locators = [] }) =>
         locators,
       },
       states: {
-        edit: {
-          on: {
-            updateEntryHeading: {
-              target: 'idle',
-              actions: 'updateEntryHeading',
-            },
-          },
-        },
         idle: {
           on: {
             dblclick: {
               target: 'edit',
             },
+          },
+        },
+        edit: {
+          on: {
+            updateHeading: [
+              {
+                cond: (_ctx, e) => e.andCreateNote,
+                target: 'createNoteWithEntry',
+                actions: ['updateHeading', 'createLocator'],
+              },
+              {
+                target: 'idle',
+                actions: 'updateHeading',
+              },
+            ],
+          },
+        },
+        createNoteWithEntry: {
+          always: {
+            target: 'idle',
+            actions: 'createNoteWithEntry',
           },
         },
       },
@@ -101,14 +126,15 @@ const createEntry = assign((ctx, _e) => {
   }
 })
 
-const createNote = assign((ctx, _e) => {
-  const id = guidGenerator()
+const createNote = assign((ctx, e) => {
+  const id = e.noteId ? e.noteId : guidGenerator()
 
   return {
     notes: [
       {
         id,
         ref: spawn(noteMachine({ id }), `note-${id}`),
+        ...(e.entryId && { entries: [e.entryId] }),
       },
       ...ctx.notes,
     ],

@@ -3,6 +3,7 @@ import { useHomePageMachine } from './HomePage.machine'
 import * as R from 'ramda'
 import { Form, Label, TextField, TextAreaField, Submit } from '@redwoodjs/forms'
 import { useActor } from '@xstate/react'
+import { useForm } from 'react-hook-form'
 
 const HomePage = () => {
   const [state, send] = useHomePageMachine()
@@ -55,19 +56,24 @@ const mapEntriesToJSX = R.map((entry) => <Entry key={entry.id} entry={entry} />)
 const Entry = ({ entry }) => {
   const [state, send] = useActor(entry.ref)
 
-  switch (state.value) {
-    case 'idle':
-      return <EntryIdle {...state.context} send={send} />
-    case 'edit':
-      return (
+  return R.cond([
+    [
+      R.either(R.equals('idle'), R.equals('createNoteWithEntry')),
+      () => <EntryIdle {...state.context} send={send} />,
+    ],
+    [
+      R.equals('edit'),
+      () => (
         <EntryEdit
           {...state.context}
-          updateEntryHeading={(data) =>
-            send({ type: 'updateEntryHeading', heading: data.heading })
+          updateHeading={(data) =>
+            send({ type: 'updateHeading', heading: data.heading })
           }
+          send={send}
         />
-      )
-  }
+      ),
+    ],
+  ])(state.value)
 }
 
 const mapLocatorsToJSX = R.map((locator) => (
@@ -75,24 +81,51 @@ const mapLocatorsToJSX = R.map((locator) => (
 ))
 
 const EntryIdle = ({ id, heading, locators, send }) => (
-  <dt onDoubleClick={send} data-id={id}>
+  <DescriptionTermWrapper onDoubleClick={send} data-id={id} tabIndex="-1">
     {heading}{' '}
     {locators && (
       <LocatorsWrapper>{mapLocatorsToJSX(locators)}</LocatorsWrapper>
     )}
-  </dt>
+  </DescriptionTermWrapper>
 )
 
-const EntryEdit = ({ id, heading, locators, updateEntryHeading }) => (
-  <Form onSubmit={updateEntryHeading} data-id={id}>
-    <Label name="heading" />
-    <TextField name="heading" defaultValue={heading} />
-    {locators && (
-      <LocatorsWrapper>{mapLocatorsToJSX(locators)}</LocatorsWrapper>
-    )}
-    <Submit>save</Submit>
-  </Form>
-)
+const DescriptionTermWrapper = styled.dt`
+  &:focus {
+    outline-offset: 4px;
+    outline: 4px solid blue;
+  }
+`
+
+const EntryEdit = ({ id, heading, locators, updateHeading, send }) => {
+  const formMethods = useForm()
+
+  const updateHeadingAndCreateNote = (e) => {
+    if (e.metaKey && e.code === 'Enter') {
+      formMethods.handleSubmit((data) =>
+        send({
+          type: 'updateHeading',
+          heading: data.heading,
+          andCreateNote: true,
+        })
+      )()
+    }
+  }
+
+  return (
+    <Form formMethods={formMethods} onSubmit={updateHeading} data-id={id}>
+      <Label name="heading" />
+      <TextField
+        name="heading"
+        defaultValue={heading}
+        onKeyDown={updateHeadingAndCreateNote}
+      />
+      {locators && (
+        <LocatorsWrapper>{mapLocatorsToJSX(locators)}</LocatorsWrapper>
+      )}
+      <Submit>save</Submit>
+    </Form>
+  )
+}
 
 // style
 //------------------------
