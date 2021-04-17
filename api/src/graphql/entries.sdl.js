@@ -18,12 +18,12 @@ export const schema = gql`
 
   input UpdateEntryInput {
     heading: String
+    createNote: Boolean
   }
 
   type Mutation {
     createEntry(input: CreateEntryInput): Entry!
     updateEntry(id: Int!, input: UpdateEntryInput!): Entry!
-    updateHeading(id: Int!, heading: String!, createNote: Boolean): Entry!
     deleteEntry(id: Int!): Entry!
   }
 `

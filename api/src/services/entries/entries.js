@@ -17,17 +17,12 @@ export const createEntry = ({ input = {} }) => {
 }
 
 export const updateEntry = ({ id, input }) => {
-  return db.entry.update({
-    data: input,
-    where: { id },
-  })
-}
+  const { createNote, ...rest } = input
 
-export const updateHeading = ({ id, heading, createNote = false }) => {
   return db.entry.update({
     where: { id },
     data: {
-      heading,
+      ...rest,
       ...(createNote && {
         locators: {
           create: {},

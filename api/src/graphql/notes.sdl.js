@@ -5,6 +5,8 @@ export const schema = gql`
     updatedAt: DateTime!
     text: String!
     entries: [Entry]!
+    children: [Note]!
+    parents: [Note]!
   }
 
   type Query {
@@ -19,6 +21,7 @@ export const schema = gql`
   input UpdateNoteInput {
     text: String
     heading: String
+    createNote: Boolean
   }
 
   type Mutation {

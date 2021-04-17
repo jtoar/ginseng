@@ -26,4 +26,7 @@ model Note {
   text String @default("")
 
   entries Entry[]
+
+  children Note[] @relation("NoteSequences", references: [id])
+  parents  Note[] @relation("NoteSequences", references: [id])
 }

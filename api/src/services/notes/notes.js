@@ -17,9 +17,10 @@ export const createNote = ({ input = {} }) => {
 }
 
 export const updateNote = ({ id, input }) => {
-  const { heading, ...rest } = input
+  const { heading, createNote, ...rest } = input
 
   return db.note.update({
+    where: { id },
     data: {
       ...rest,
       ...(heading && {
@@ -34,8 +35,12 @@ export const updateNote = ({ id, input }) => {
           },
         },
       }),
+      ...(createNote && {
+        children: {
+          create: {},
+        },
+      }),
     },
-    where: { id },
   })
 }
 
@@ -48,4 +53,8 @@ export const deleteNote = ({ id }) => {
 export const Note = {
   entries: (_obj, { root }) =>
     db.note.findUnique({ where: { id: root.id } }).entries(),
+  children: (_obj, { root }) =>
+    db.note.findUnique({ where: { id: root.id } }).children(),
+  parents: (_obj, { root }) =>
+    db.note.findUnique({ where: { id: root.id } }).parents(),
 }
