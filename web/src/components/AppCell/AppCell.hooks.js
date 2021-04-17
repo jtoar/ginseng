@@ -4,9 +4,10 @@ import { useMutation } from '@redwoodjs/web'
 //========================
 
 const CREATE_ENTRY_MUTATION = gql`
-  mutation CreateEntry {
-    createEntry {
+  mutation CreateEntry($input: CreateEntryInput) {
+    createEntry(input: $input) {
       id
+      heading
     }
   }
 `

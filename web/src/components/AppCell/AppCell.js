@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Form, TextAreaField, Submit, TextField } from '@redwoodjs/forms'
+import { Form, TextAreaField, Submit, TextField, Label } from '@redwoodjs/forms'
 import * as R from 'ramda'
 import {
   useCreateEntry,
@@ -52,7 +52,14 @@ export const Success = ({ entries, notes }) => {
     <GridWrapper>
       <IndexWrapper>
         <h2>index</h2>
-        <button onClick={createEntry}>create</button>
+        <Form onSubmit={(data) => createEntry({ variables: { input: data } })}>
+          <Label name="heading">heading</Label>
+          <TextField
+            name="heading"
+            placeholder="sleep, complexity, mike wazowski"
+          />
+          <Submit>save</Submit>
+        </Form>
         <dl>{mapEntriesToJSX(entries)}</dl>
       </IndexWrapper>
       <NotesWrapper>
