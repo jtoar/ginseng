@@ -16,6 +16,10 @@ model Entry {
   heading String? @unique
 
   locators Note[]
+
+  subEntries    Entry[] @relation("Headings")
+  parentEntry   Entry?  @relation("Headings", fields: [parentEntryId], references: [id])
+  parentEntryId Int?
 }
 
 model Note {

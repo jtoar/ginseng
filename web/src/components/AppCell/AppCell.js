@@ -12,6 +12,13 @@ export const QUERY = gql`
       locators {
         id
       }
+      subEntries {
+        id
+        heading
+        locators {
+          id
+        }
+      }
     }
     notes {
       id

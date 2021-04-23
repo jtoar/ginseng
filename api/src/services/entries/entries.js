@@ -1,7 +1,13 @@
 import { db } from 'src/lib/db'
 
-export const entries = () => {
-  return db.entry.findMany()
+export const entries = async () => {
+  const entries = await db.entry.findMany({
+    include: {
+      parentEntry: true,
+    },
+  })
+
+  return entries.filter((entry) => entry.parentEntry === null)
 }
 
 export const entry = ({ id }) => {
@@ -11,8 +17,22 @@ export const entry = ({ id }) => {
 }
 
 export const createEntry = ({ input = {} }) => {
+  const { createNote, createSubEntry, ...rest } = input
+
   return db.entry.create({
-    data: input,
+    data: {
+      ...rest,
+      ...(createNote && {
+        locators: {
+          create: {},
+        },
+      }),
+      ...(createSubEntry && {
+        subEntries: {
+          create: {},
+        },
+      }),
+    },
   })
 }
 
@@ -41,4 +61,8 @@ export const deleteEntry = ({ id }) => {
 export const Entry = {
   locators: (_obj, { root }) =>
     db.entry.findUnique({ where: { id: root.id } }).locators(),
+  subEntries: (_obj, { root }) =>
+    db.entry.findUnique({ where: { id: root.id } }).subEntries(),
+  parentEntry: (_obj, { root }) =>
+    db.entry.findUnique({ where: { id: root.id } }).parentEntry(),
 }

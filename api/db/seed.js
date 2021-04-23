@@ -44,9 +44,14 @@ async function main() {
     await db.entry.create({
       data: {
         heading: 'sleep',
-        locators: {
+        subEntries: {
           create: {
-            text: 'nothing breaks you faster',
+            heading: 'the irr of',
+            locators: {
+              create: {
+                text: 'nothing breaks you faster',
+              },
+            },
           },
         },
       },

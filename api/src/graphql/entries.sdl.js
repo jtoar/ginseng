@@ -5,6 +5,8 @@ export const schema = gql`
     updatedAt: DateTime!
     heading: String
     locators: [Note]!
+    subEntries: [Entry]!
+    parentEntry: Entry
   }
 
   type Query {
@@ -14,6 +16,8 @@ export const schema = gql`
 
   input CreateEntryInput {
     heading: String
+    createNote: Boolean
+    createSubEntry: Boolean
   }
 
   input UpdateEntryInput {

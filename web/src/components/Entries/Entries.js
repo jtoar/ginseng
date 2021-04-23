@@ -9,14 +9,53 @@ const Entries = ({ entries }) => {
     refetchQueries: ['AppQuery'],
   })
 
+  //------------------------
+
+  const formMethods = useForm()
+
+  const handleKeyDown = (e) => {
+    if (e.metaKey && e.key === 'Enter') {
+      formMethods.handleSubmit((data) => {
+        createEntry({
+          variables: {
+            input: {
+              ...data,
+              createNote: true,
+            },
+          },
+        })
+      })()
+      formMethods.reset()
+    }
+    if (e.key === 'Tab') {
+      formMethods.handleSubmit((data) => {
+        createEntry({
+          variables: {
+            input: {
+              ...data,
+              createSubEntry: true,
+            },
+          },
+        })
+      })()
+    }
+  }
+
   return (
     <EntriesWrapper>
       <h2>index</h2>
-      <Form onSubmit={(data) => createEntry({ variables: { input: data } })}>
+      <Form
+        formMethods={formMethods}
+        onSubmit={(data) => {
+          createEntry({ variables: { input: data } })
+          formMethods.reset()
+        }}
+      >
         <Label name="heading">heading</Label>
         <TextField
           name="heading"
           placeholder="sleep, complexity, mike wazowski"
+          onKeyDown={handleKeyDown}
         />
         <Submit>save</Submit>
       </Form>
@@ -41,7 +80,49 @@ const EntriesWrapper = styled.section`
 
 //------------------------
 
-const mapEntriesToJSX = R.map((entry) => <Entry key={entry.id} entry={entry} />)
+// const mapEntriesToJSX = R.map((entry) => (
+//   <>
+//     <Entry key={entry.id} entry={entry} />
+//     {entry.subEntries && mapEntriesToJSX(entry.subEntries)}
+//   </>
+// ))
+
+const mapSubEntriesToJSX = R.map((entry) => (
+  <DescriptionDefinitionWrapper
+    key={entry.id}
+    data-entry-id={entry.id}
+    tabIndex="-1"
+  >
+    <Entry entry={entry} />
+  </DescriptionDefinitionWrapper>
+))
+
+const mapEntriesToJSX = R.map((entry) => (
+  <>
+    <DescriptionTermWrapper
+      key={entry.id}
+      data-entry-id={entry.id}
+      tabIndex="-1"
+    >
+      <Entry entry={entry} />
+    </DescriptionTermWrapper>
+    {entry.subEntries && mapSubEntriesToJSX(entry.subEntries)}
+  </>
+))
+
+const DescriptionTermWrapper = styled.dt`
+  &:focus {
+    outline: 2px dotted hsl(220deg 50% 50%);
+  }
+`
+
+const DescriptionDefinitionWrapper = styled.dd`
+  &:focus {
+    outline: 2px dotted hsl(220deg 50% 50%);
+  }
+`
+
+//------------------------
 
 const Entry = ({ entry }) => {
   const [editing, setEditing] = React.useState(false)
@@ -53,6 +134,8 @@ const Entry = ({ entry }) => {
     refetchQueries: ['AppQuery'],
     onCompleted: () => setEditing(false),
   })
+
+  //------------------------
 
   const formMethods = useForm()
 
@@ -80,7 +163,7 @@ const Entry = ({ entry }) => {
   }
 
   return (
-    <DescriptionTermWrapper data-entry-id={entry.id} tabIndex="-1">
+    <>
       {editing ? (
         <Form
           formMethods={formMethods}
@@ -101,7 +184,7 @@ const Entry = ({ entry }) => {
         </BWrapper>
       )}
       <LocatorsWrapper>{mapLocatorsToJSX(entry.locators)}</LocatorsWrapper>
-    </DescriptionTermWrapper>
+    </>
   )
 }
 
@@ -119,12 +202,6 @@ const mapLocatorsToJSX = R.map((locator) => {
 })
 
 //------------------------
-
-const DescriptionTermWrapper = styled.dt`
-  &:focus {
-    outline: 2px dotted hsl(220deg 50% 50%);
-  }
-`
 
 const BWrapper = styled.b`
   &:after {
