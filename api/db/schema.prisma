@@ -31,6 +31,7 @@ model Note {
 
   entries Entry[]
 
-  children Note[] @relation("NoteSequences", references: [id])
-  parents  Note[] @relation("NoteSequences", references: [id])
+  children Note[] @relation("NoteSequences")
+  parent   Note?  @relation("NoteSequences", fields: [parentId], references: [id])
+  parentId Int?
 }

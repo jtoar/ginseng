@@ -6,7 +6,8 @@ export const schema = gql`
     text: String!
     entries: [Entry]!
     children: [Note]!
-    parents: [Note]!
+    parent: Note
+    parentId: Int
   }
 
   type Query {

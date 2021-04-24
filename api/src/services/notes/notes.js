@@ -55,6 +55,6 @@ export const Note = {
     db.note.findUnique({ where: { id: root.id } }).entries(),
   children: (_obj, { root }) =>
     db.note.findUnique({ where: { id: root.id } }).children(),
-  parents: (_obj, { root }) =>
-    db.note.findUnique({ where: { id: root.id } }).parents(),
+  parent: (_obj, { root }) =>
+    db.note.findUnique({ where: { id: root.id } }).parent(),
 }

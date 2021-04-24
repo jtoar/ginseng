@@ -81,7 +81,7 @@ const Note = ({ note }) => {
       </NoteEntriesWrapper>
       {/* note children */}
       <p>children: {JSON.stringify(note.children)}</p>
-      <p>parents: {JSON.stringify(note.parents)}</p>
+      <p>parent: {note.parentId}</p>
     </StyledForm>
   )
 }

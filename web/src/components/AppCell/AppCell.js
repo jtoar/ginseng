@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import Entries from 'src/components/Entries'
 import Notes from 'src/components/Notes'
+import NoteSequences from 'src/components/NoteSequences'
 
 export const QUERY = gql`
   query AppQuery {
@@ -32,9 +33,7 @@ export const QUERY = gql`
       children {
         id
       }
-      parents {
-        id
-      }
+      parentId
     }
   }
 `
@@ -49,6 +48,7 @@ export const Success = ({ entries, notes }) => (
   <Wrapper>
     <Entries entries={entries} />
     <Notes notes={notes} />
+    <NoteSequences notes={notes} />
   </Wrapper>
 )
 
@@ -56,7 +56,7 @@ const Wrapper = styled.main`
   display: grid;
   grid-template:
     1fr
-    / 1fr 1fr;
-  grid-template-areas: 'index notes';
+    / 1fr 1fr 1fr;
+  grid-template-areas: 'index notes noteSequences';
   height: 100%;
 `
